@@ -1,14 +1,5 @@
 {
-<<<<<<< HEAD
-  "name": "Cloud2",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "private": true
-=======
+
   "name": "personas",
   "version": "0.0.1",
   "description": "",
@@ -84,5 +75,4 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
   }
->>>>>>> 7d3d0 (cambios importantes)
 }
