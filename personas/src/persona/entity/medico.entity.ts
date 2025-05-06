@@ -9,4 +9,3 @@ export class Medico extends Persona {
     @Column()
     colegiatura: string;
 }
-    

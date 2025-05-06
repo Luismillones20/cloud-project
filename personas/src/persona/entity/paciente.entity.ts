@@ -4,7 +4,7 @@ import { Persona } from './persona.entity';
 @ChildEntity()
 export class Paciente extends Persona {
     @Column({ nullable: true })
-    seguroSalud: string;
+    seguroSalud: boolean;
 
     @Column({ nullable: true })
     estadoCivil: string;

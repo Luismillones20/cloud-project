@@ -1,7 +1,11 @@
 import { Controller, Get, Post, Param, Body, Put, Delete } from '@nestjs/common';
-import { PersonaService } from './persona.service';
-import { Paciente } from './paciente.entity';
-import { Medico } from './medico.entity';
+import { PersonaService } from '../service/persona.service';
+import { Paciente } from '../entity/paciente.entity';
+import { Medico } from '../entity/medico.entity';
+import {ShowBasicInfoMedicoDto} from "../Dto/ShowBasicInfoMedicoDto";
+import {CreateMedicoDto} from "../Dto/createMedicoDto";
+import {CreatePacienteDto} from "../Dto/createPacienteDto";
+import {ShowBasicInfoPacienteDto} from "../Dto/ShowBasicInfoPacienteDto";
 
 @Controller('api/personas')
 export class PersonaController {
@@ -21,15 +25,17 @@ export class PersonaController {
 
     // Crear Paciente
     @Post('paciente')
-    async crearPaciente(@Body() pacienteData: Partial<Paciente>): Promise<Paciente> {
-        return this.personaService.createPaciente(pacienteData);
+    async crearPaciente(@Body() pacienteDto: CreatePacienteDto): Promise<ShowBasicInfoPacienteDto> {
+        return this.personaService.createPaciente(pacienteDto);
     }
+
 
     // Crear Medico
     @Post('medico')
-    async crearMedico(@Body() medicoData: Partial<Medico>): Promise<Medico> {
+    async crearMedico(@Body() medicoData: CreateMedicoDto): Promise<ShowBasicInfoMedicoDto> {
         return this.personaService.createMedico(medicoData);
     }
+
 
     // Actualizar Paciente
     @Put('paciente/:id')

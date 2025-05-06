@@ -26,5 +26,4 @@ export abstract class Persona {
 
     @Column()
     email: string;
-
 }

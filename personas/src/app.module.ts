@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Paciente } from './persona/paciente.entity';
-import { Medico } from './persona/medico.entity';
-import { Persona } from './persona/persona.entity';
+import { Paciente } from './persona/entity/paciente.entity';
+import { Medico } from './persona/entity/medico.entity';
+import { Persona } from './persona/entity/persona.entity';
 import { PersonaModule } from './persona/persona.module'; // Importamos el módulo de Persona
 
 @Module({

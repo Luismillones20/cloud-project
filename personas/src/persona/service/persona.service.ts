@@ -1,9 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Paciente } from './paciente.entity';
-import { Medico } from './medico.entity';
+import { Paciente } from '../entity/paciente.entity';
+import { Medico } from '../entity/medico.entity';
 import { NotFoundException } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
+import {ShowBasicInfoMedicoDto, } from "../Dto/ShowBasicInfoMedicoDto";
+import {ShowBasicInfoPacienteDto} from "../Dto/ShowBasicInfoPacienteDto";
+import { CreateMedicoDto} from '../Dto/createMedicoDto';// ajusta la ruta si es distinta
+import {CreatePacienteDto} from '../Dto/createPacienteDto';
+
 
 @Injectable()
 export class PersonaService {
@@ -34,16 +40,20 @@ export class PersonaService {
 
 
     // Crear Paciente
-    async createPaciente(pacienteData: Partial<Paciente>): Promise<Paciente> {
+    async createPaciente(pacienteData: CreatePacienteDto): Promise<ShowBasicInfoPacienteDto> {
         const paciente = this.pacienteRepo.create(pacienteData);
-        return await this.pacienteRepo.save(paciente);
+        const saved = await this.pacienteRepo.save(paciente);
+        return plainToInstance(ShowBasicInfoPacienteDto, saved, { excludeExtraneousValues: true });
     }
 
+
     // Crear Medico
-    async createMedico(medicoData: Partial<Medico>): Promise<Medico> {
+    async createMedico(medicoData: CreateMedicoDto): Promise<ShowBasicInfoMedicoDto> {
         const medico = this.medicoRepo.create(medicoData);
-        return await this.medicoRepo.save(medico);
+        const saved = await this.medicoRepo.save(medico);
+        return plainToInstance(ShowBasicInfoMedicoDto, saved, { excludeExtraneousValues: true });
     }
+
 
     async updatePaciente(id: number, pacienteData: Partial<Paciente>): Promise<Paciente> {
         await this.pacienteRepo.update(id, pacienteData);
@@ -65,13 +75,17 @@ export class PersonaService {
     }
 
 
-    // Eliminar Paciente
     async removePaciente(id: number): Promise<void> {
-        await this.pacienteRepo.delete(id);
+        const result = await this.pacienteRepo.delete(id);
+        if (result.affected === 0) {
+            throw new NotFoundException(`Paciente con ID ${id} no encontrado`);
+        }
     }
 
-    // Eliminar Medico
     async removeMedico(id: number): Promise<void> {
-        await this.medicoRepo.delete(id);
+        const result = await this.medicoRepo.delete(id);
+        if (result.affected === 0) {
+            throw new NotFoundException(`Médico con ID ${id} no encontrado`);
+        }
     }
 }
