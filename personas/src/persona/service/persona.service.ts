@@ -9,6 +9,8 @@ import {ShowBasicInfoMedicoDto, } from "../Dto/ShowBasicInfoMedicoDto";
 import {ShowBasicInfoPacienteDto} from "../Dto/ShowBasicInfoPacienteDto";
 import { CreateMedicoDto} from '../Dto/createMedicoDto';// ajusta la ruta si es distinta
 import {CreatePacienteDto} from '../Dto/createPacienteDto';
+import { UpdateMedicoDto } from '../Dto/updateMedicoDto';
+import {UpdatePacienteDto} from "../Dto/updatePacienteDto"; // importa el DTO nuevo
 
 
 @Injectable()
@@ -21,21 +23,22 @@ export class PersonaService {
     ) {}
 
     // Obtener Paciente por ID
-    async getPacienteById(id: number): Promise<Paciente> {
+    async getPacienteById(id: number): Promise<ShowBasicInfoPacienteDto> {
         const paciente = await this.pacienteRepo.findOne({ where: { id } });
         if (!paciente) {
             throw new NotFoundException(`Paciente con ID ${id} no encontrado`);
         }
-        return paciente;
+        return plainToInstance(ShowBasicInfoPacienteDto, paciente, { excludeExtraneousValues: true });
     }
 
+
     // Obtener Medico por ID
-    async getMedicoById(id: number): Promise<Medico> {
+    async getMedicoById(id: number): Promise<ShowBasicInfoMedicoDto> {
         const medico = await this.medicoRepo.findOne({ where: { id } });
         if (!medico) {
             throw new NotFoundException(`Medico con ID ${id} no encontrado`);
         }
-        return medico;
+        return plainToInstance(ShowBasicInfoMedicoDto, medico, { excludeExtraneousValues: true });
     }
 
 
@@ -54,26 +57,25 @@ export class PersonaService {
         return plainToInstance(ShowBasicInfoMedicoDto, saved, { excludeExtraneousValues: true });
     }
 
-
-    async updatePaciente(id: number, pacienteData: Partial<Paciente>): Promise<Paciente> {
+    // Actualizar Paciente y retornar DTO
+    async updatePaciente(id: number, pacienteData: UpdatePacienteDto): Promise<ShowBasicInfoPacienteDto> {
         await this.pacienteRepo.update(id, pacienteData);
         const paciente = await this.pacienteRepo.findOne({ where: { id } });
         if (!paciente) {
             throw new NotFoundException(`Paciente con ID ${id} no encontrado`);
         }
-        return paciente;
+        return plainToInstance(ShowBasicInfoPacienteDto, paciente, { excludeExtraneousValues: true });
     }
 
-    // Actualizar Medico
-    async updateMedico(id: number, medicoData: Partial<Medico>): Promise<Medico> {
+    // Actualizar Médico y retornar DTO
+    async updateMedico(id: number, medicoData: UpdateMedicoDto): Promise<ShowBasicInfoMedicoDto> {
         await this.medicoRepo.update(id, medicoData);
         const medico = await this.medicoRepo.findOne({ where: { id } });
         if (!medico) {
             throw new NotFoundException(`Medico con ID ${id} no encontrado`);
         }
-        return medico;
+        return plainToInstance(ShowBasicInfoMedicoDto, medico, { excludeExtraneousValues: true });
     }
-
 
     async removePaciente(id: number): Promise<void> {
         const result = await this.pacienteRepo.delete(id);

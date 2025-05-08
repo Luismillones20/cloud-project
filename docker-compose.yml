@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: personas_postgres
+    ports:
+      - "5400:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - clinica-net
+
+  mongo:
+    image: mongo
+    container_name: ${MONGO_HOST}
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+    networks:
+      - clinica-net
+
+  persona:
+    build: ./personas
+    container_name: persona_service
+    ports:
+      - "3002:3001"
+    depends_on:
+      - postgres
+    networks:
+      - clinica-net
+    environment:
+      DB_HOST: ${POSTGRES_HOST}
+      DB_PORT: ${POSTGRES_PORT}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASS: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB}
+      PORT: ${NEST_PORT}
+
+  historial:
+    build: ./historial
+    container_name: historial_service
+    ports:
+      - "8084:8083"
+    depends_on:
+      - mongo
+    networks:
+      - clinica-net
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_INITDB_DATABASE}?authSource=admin
+      SERVER_PORT: ${SPRING_PORT}
+
+networks:
+  clinica-net:
+    driver: bridge

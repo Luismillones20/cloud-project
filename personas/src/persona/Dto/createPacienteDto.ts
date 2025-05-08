@@ -8,6 +8,7 @@ import {
     IsEnum, IsIn,
 } from 'class-validator';
 import { EstadoCivil } from '../enums/EstadoCivil';
+import {TipoSangre} from "../enums/TipoSangre";
 
 export class CreatePacienteDto {
     @IsString()
@@ -49,7 +50,8 @@ export class CreatePacienteDto {
     @IsOptional()
     estadoCivil?: EstadoCivil;
 
-    @IsString()
-    @IsOptional()
-    tipoSangre?: string;
+    @IsEnum(TipoSangre, {
+        message: `El tipo de sangre debe ser del tipo: ${Object.values(TipoSangre).join(', ')}`,
+    })    @IsOptional()
+    tipoSangre?: TipoSangre;
 }

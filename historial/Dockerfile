@@ -1,9 +1,9 @@
-FROM ubuntu:latest
-LABEL authors="luism"
+#FROM ubuntu:latest
+#LABEL authors="luism"
 
 #ENTRYPOINT ["top", "-b"
 # Etapa 1: Build del proyecto
-FROM maven:3.9.4-eclipse-temurin-17 AS build
+FROM maven:3.9.4-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src

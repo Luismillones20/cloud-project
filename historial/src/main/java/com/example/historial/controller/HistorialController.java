@@ -21,6 +21,10 @@ public class HistorialController {
     public List<HistorialMedico> obtenerHistorial(@PathVariable String pacienteId) {
         return service.obtenerPorPaciente(pacienteId);
     }
+    @GetMapping("/ping")
+    public String ping() {
+        return "pong v1";
+    }
 
     @PostMapping
     public HistorialMedico crearHistorial(@Valid @RequestBody HistorialMedico historial) {

@@ -9,7 +9,7 @@ import { PersonaModule } from './persona/persona.module'; // Importamos el módu
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      host: 'postgres',
       port: 5432,
       username: 'postgres',
       password: 'postgres', // Asegúrate de que la contraseña sea correcta
