@@ -71,4 +71,14 @@ export class PersonaController {
         await this.personaService.removeMedico(id);
         return { mensaje: `Médico con ID ${id} eliminado exitosamente.` };
     }
+    /////////////////////////////
+    @Get('paciente/dni/:dni')
+    async obtenerPacientePorDni(@Param('dni') dni: string): Promise<ShowBasicInfoPacienteDto> {
+        return this.personaService.getPacienteByDni(dni);
+    }
+    @Get('medico/dni/:dni')
+    async obtenerMedicoPorDni(@Param('dni') dni: string): Promise<ShowBasicInfoMedicoDto> {
+        return this.personaService.getMedicoByDni(dni);
+    }
+
 }

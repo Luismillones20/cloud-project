@@ -6,6 +6,12 @@ export abstract class Persona {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column({ unique: true })
+    dni: string;
+
+    @Column()
+    password: string;
+
     @Column()
     nombres: string;
 

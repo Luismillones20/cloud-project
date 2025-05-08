@@ -11,6 +11,7 @@ import { CreateMedicoDto} from '../Dto/createMedicoDto';// ajusta la ruta si es 
 import {CreatePacienteDto} from '../Dto/createPacienteDto';
 import { UpdateMedicoDto } from '../Dto/updateMedicoDto';
 import {UpdatePacienteDto} from "../Dto/updatePacienteDto"; // importa el DTO nuevo
+import * as bcrypt from 'bcrypt'; // al inicio
 
 
 @Injectable()
@@ -31,6 +32,20 @@ export class PersonaService {
         return plainToInstance(ShowBasicInfoPacienteDto, paciente, { excludeExtraneousValues: true });
     }
 
+    async getPacienteByDni(dni: string): Promise<ShowBasicInfoPacienteDto> {
+        const paciente = await this.pacienteRepo.findOne({ where: { dni } });
+        if (!paciente) {
+            throw new NotFoundException(`Paciente con DNI ${dni} no encontrado`);
+        }
+        return plainToInstance(ShowBasicInfoPacienteDto, paciente, { excludeExtraneousValues: true });
+    }
+    async getMedicoByDni(dni: string): Promise<ShowBasicInfoMedicoDto> {
+        const medico = await this.medicoRepo.findOne({ where: { dni } });
+        if (!medico) {
+            throw new NotFoundException(`Médico con DNI ${dni} no encontrado`);
+        }
+        return plainToInstance(ShowBasicInfoMedicoDto, medico, { excludeExtraneousValues: true });
+    }
 
     // Obtener Medico por ID
     async getMedicoById(id: number): Promise<ShowBasicInfoMedicoDto> {
