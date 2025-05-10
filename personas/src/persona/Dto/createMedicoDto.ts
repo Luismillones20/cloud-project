@@ -1,5 +1,24 @@
-import {IsString, IsNotEmpty, IsEmail, IsIn, IsEnum, Length, Matches} from 'class-validator';
+import {IsString, IsNotEmpty, IsEmail, IsIn, IsEnum, Length, Matches, IsArray, ValidateNested  } from 'class-validator';
 import {EspecialidadMedica} from "../enums/EspecialidadMedica";
+import { Type } from 'class-transformer';
+
+class TurnoDto {
+    @IsString()
+    inicio: string;
+
+    @IsString()
+    fin: string;
+}
+
+class DiaHorarioDto {
+    @IsString()
+    dia: string;
+
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => TurnoDto)
+    turnos: TurnoDto[];
+}
 
 export class CreateMedicoDto {
     @IsString()
@@ -53,4 +72,9 @@ export class CreateMedicoDto {
 
     @IsNotEmpty({ message: 'La fecha de nacimiento es obligatoria' })
     fechaNacimiento: Date;
+
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => DiaHorarioDto)
+    horario: DiaHorarioDto[];
 }

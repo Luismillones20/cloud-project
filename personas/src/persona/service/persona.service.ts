@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import {BadRequestException, Injectable} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import {QueryFailedError, Repository} from 'typeorm';
 import { Paciente } from '../entity/paciente.entity';
 import { Medico } from '../entity/medico.entity';
 import { NotFoundException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import {ShowBasicInfoMedicoDto, } from "../Dto/ShowBasicInfoMedicoDto";
+import {ShowBasicInfoMedicoDto} from "../Dto/ShowBasicInfoMedicoDto";
 import {ShowBasicInfoPacienteDto} from "../Dto/ShowBasicInfoPacienteDto";
 import { CreateMedicoDto} from '../Dto/createMedicoDto';// ajusta la ruta si es distinta
 import {CreatePacienteDto} from '../Dto/createPacienteDto';
@@ -59,17 +59,31 @@ export class PersonaService {
 
     // Crear Paciente
     async createPaciente(pacienteData: CreatePacienteDto): Promise<ShowBasicInfoPacienteDto> {
-        const paciente = this.pacienteRepo.create(pacienteData);
-        const saved = await this.pacienteRepo.save(paciente);
-        return plainToInstance(ShowBasicInfoPacienteDto, saved, { excludeExtraneousValues: true });
+        try {
+            const paciente = this.pacienteRepo.create(pacienteData);
+            const saved = await this.pacienteRepo.save(paciente);
+            return plainToInstance(ShowBasicInfoPacienteDto, saved, { excludeExtraneousValues: true });
+        } catch (error) {
+            if (error instanceof QueryFailedError && (error as any).code === '23505') {
+                throw new BadRequestException('Ya existe un paciente con ese DNI.');
+            }
+            throw error; // Re-lanzar cualquier otro error
+        }
     }
 
 
     // Crear Medico
     async createMedico(medicoData: CreateMedicoDto): Promise<ShowBasicInfoMedicoDto> {
-        const medico = this.medicoRepo.create(medicoData);
-        const saved = await this.medicoRepo.save(medico);
-        return plainToInstance(ShowBasicInfoMedicoDto, saved, { excludeExtraneousValues: true });
+        try {
+            const medico = this.medicoRepo.create(medicoData);
+            const saved = await this.medicoRepo.save(medico);
+            return plainToInstance(ShowBasicInfoMedicoDto, saved, { excludeExtraneousValues: true });
+        } catch (error) {
+            if (error instanceof QueryFailedError && (error as any).code === '23505') {
+                throw new BadRequestException('Ya existe un médico con ese DNI.');
+            }
+            throw error; // re-lanzar cualquier otro error
+        }
     }
 
     // Actualizar Paciente y retornar DTO
@@ -105,4 +119,21 @@ export class PersonaService {
             throw new NotFoundException(`Médico con ID ${id} no encontrado`);
         }
     }
+    async buscarMedicosPorEspecialidadYDia(especialidad: string, dia: string): Promise<ShowBasicInfoMedicoDto[]> {
+        // 1. Buscar médicos que coincidan con especialidad (insensible a mayúsculas/minúsculas)
+        const medicos = await this.medicoRepo.createQueryBuilder('medico')
+            .where('medico.especialidad ILIKE :especialidad', { especialidad: `%${especialidad}%` })
+            .getMany();
+
+        // 2. Filtrar en memoria por día en el horario
+        const medicosFiltrados = medicos.filter(medico =>
+            medico.horario?.some((bloque: any) => bloque.dia.toLowerCase() === dia.toLowerCase())
+        );
+
+        // 3. Mapear a DTOs
+        return medicosFiltrados.map(medico =>
+            plainToInstance(ShowBasicInfoMedicoDto, medico, { excludeExtraneousValues: true })
+        );
+    }
+
 }

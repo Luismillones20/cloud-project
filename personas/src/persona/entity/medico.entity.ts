@@ -8,4 +8,10 @@ export class Medico extends Persona {
 
     @Column()
     colegiatura: string;
+
+    @Column('simple-json')
+    horario: {
+        dia: string;
+        turnos: { inicio: string; fin: string }[];
+    }[];
 }

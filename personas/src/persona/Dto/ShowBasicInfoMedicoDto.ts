@@ -1,4 +1,20 @@
-import { Exclude, Expose } from 'class-transformer';
+import {Exclude, Expose, Type} from 'class-transformer';
+class TurnoDto {
+    @Expose()
+    inicio: string;
+
+    @Expose()
+    fin: string;
+}
+
+class DiaHorarioDto {
+    @Expose()
+    dia: string;
+
+    @Expose()
+    @Type(() => TurnoDto)
+    turnos: TurnoDto[];
+}
 
 @Exclude()
 export class ShowBasicInfoMedicoDto {
@@ -16,4 +32,8 @@ export class ShowBasicInfoMedicoDto {
 
     @Expose()
     telefono: string;
+
+    @Expose()
+    @Type(() => DiaHorarioDto)
+    horario: DiaHorarioDto[];
 }

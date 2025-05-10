@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, Body, Put, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, Put, Delete, Query } from '@nestjs/common';
 import { PersonaService } from '../service/persona.service';
 import { Paciente } from '../entity/paciente.entity';
 import { Medico } from '../entity/medico.entity';
@@ -80,5 +80,15 @@ export class PersonaController {
     async obtenerMedicoPorDni(@Param('dni') dni: string): Promise<ShowBasicInfoMedicoDto> {
         return this.personaService.getMedicoByDni(dni);
     }
+
+    // persona.controller.ts
+    @Get('medicos')
+    async buscarMedicosPorEspecialidadYDia(
+        @Query('especialidad') especialidad: string,
+        @Query('dia') dia: string,
+    ): Promise<ShowBasicInfoMedicoDto[]> {
+        return this.personaService.buscarMedicosPorEspecialidadYDia(especialidad, dia);
+    }
+
 
 }
