@@ -30,11 +30,11 @@ public class ExamenMedico {
     @NotBlank(message = "La especialidad es obligatoria")
     private String especialidad;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @NotNull(message = "La fecha de solicitud es obligatoria")
     private Date fechaSolicitud;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date fechaRealizacion;
 
     @JsonFormat
