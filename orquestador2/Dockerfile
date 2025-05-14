@@ -8,7 +8,7 @@ WORKDIR /orquestador2
 COPY . .
 
 # Instalar dependencias
-RUN  pip3 install flask flasgger mysql-connector-python pytz requests
+RUN  pip3 install flask flasgger mysql-connector-python pytz requests flask_cors
 
 # Exponer el puerto donde corre Flask
 EXPOSE 8002

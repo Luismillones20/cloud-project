@@ -1,12 +1,14 @@
 from flask import Flask, jsonify, request
 import requests
 from flasgger import Swagger
+from flask_cors import CORS
 
 app = Flask(__name__)
 swagger = Swagger(app)
+CORS(app)
 
 # Variables de entorno o .env para IPs reales o nombres en Docker network
-PERSONA_SERVICE_URL = "http://persona-service:3001/api/personas" # "http://persona-service:3002" # persona-service:3001/api/personas
+PERSONA_SERVICE_URL = "http://persona-service:3002/api/personas" # "http://persona-service:3002" # persona-service:3001/api/personas
 EXAMEN_SERVICE_URL = "http://historial-service:8084/api/examenes" # http://historial-service:8084 #historial-service:8084/api/examenes
 CITAS_SERVICE_URL = "http://api-receta:8000"
 
@@ -15,7 +17,7 @@ CITAS_SERVICE_URL = "http://api-receta:8000"
 def get_paciente_info(dni):
     #try:
         # Llama al persona-service para obtener info del paciente
-    response = requests.get(f"{PERSONA_SERVICE_URL}/api/personas/paciente/dni/{dni}", timeout=5)
+    response = requests.get(f"{PERSONA_SERVICE_URL}/paciente/dni/{dni}", timeout=5)
 
     if response.status_code == 200:
         return jsonify(response.json()), 200
@@ -37,19 +39,19 @@ def crear_examen_con_validacion():
         return jsonify({"error": "El campo pacienteId es obligatorio"}), 400
 
     # Validar existencia del paciente en persona-service
-    try:
-        response = requests.get(f"{PERSONA_SERVICE_URL}/api/personas/paciente/dni/{paciente_id}")
-        if response.status_code != 200:
-            return jsonify({"error": f"Paciente con ID {paciente_id} no existe"}), 400
-    except Exception as e:
-        return jsonify({"error": f"Error al verificar paciente: {str(e)}"}), 500
+    #try:
+    response = requests.get(f"{PERSONA_SERVICE_URL}/paciente/dni/{paciente_id}")
+    if response.status_code != 200:
+        return jsonify({"error": f"Paciente con ID {paciente_id} no existe"}), 400
+    #except Exception as e:
+    #    return jsonify({"error": f"Error al verificar paciente: {str(e)}"}), 500
 
     # Si existe, redirigir al historial-service para crear el examen
-    try:
-        examen_response = requests.post(EXAMEN_SERVICE_URL, json=data)
-        return jsonify(examen_response.json()), examen_response.status_code
-    except Exception as e:
-        return jsonify({"error": f"Error al crear examen: {str(e)}"}), 500
+    #try:
+    examen_response = requests.post(EXAMEN_SERVICE_URL, json=data)
+    return jsonify(examen_response.json()), examen_response.status_code
+    #except Exception as e:
+    #    return jsonify({"error": f"Error al crear examen: {str(e)}"}), 500
 
 
 @app.route('/orquestador/citas', methods=['POST'])
@@ -93,11 +95,11 @@ def crear_cita_orquestada():
               500:
                 description: Error del servidor
         """
-    try:
-        response = requests.post(f"{CITAS_SERVICE_URL}/generarcita", json=request.get_json(), timeout=5)
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': f"Error al comunicarse con citas-service: {str(e)}"}), 503
+    #try:
+    response = requests.post(f"{CITAS_SERVICE_URL}/generarcita", json=request.get_json(), timeout=5)
+    return jsonify(response.json()), response.status_code
+    #except requests.exceptions.RequestException as e:
+    #    return jsonify({'error': f"Error al comunicarse con citas-service: {str(e)}"}), 503
 @app.route('/orquestador/citas/<string:idcita>', methods=['GET'])
 def obtener_cita_orquestada(idcita):
     """
@@ -116,11 +118,11 @@ def obtener_cita_orquestada(idcita):
          400:
            description: Cita no encontrada
        """
-    try:
-        response = requests.get(f"{CITAS_SERVICE_URL}/getcita/{idcita}", timeout=5)
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': f"Error al comunicarse con citas-service: {str(e)}"}), 503
+    #try:
+    response = requests.get(f"{CITAS_SERVICE_URL}/getcita/{idcita}", timeout=5)
+    return jsonify(response.json()), response.status_code
+    #except requests.exceptions.RequestException as e:
+    #    return jsonify({'error': f"Error al comunicarse con citas-service: {str(e)}"}), 503
 @app.route('/orquestador/citas/paciente/<string:idpaciente>', methods=['GET'])
 def obtener_citas_paciente_orquestada(idpaciente):
     """
@@ -139,11 +141,11 @@ def obtener_citas_paciente_orquestada(idpaciente):
           400:
             description: No se encontraron citas para el paciente
         """
-    try:
-        response = requests.get(f"{CITAS_SERVICE_URL}/getcita/paciente/{idpaciente}", timeout=5)
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': f"Error al comunicarse con citas-service: {str(e)}"}), 503
+    #try:
+    response = requests.get(f"{CITAS_SERVICE_URL}/getcita/paciente/{idpaciente}", timeout=5)
+    return jsonify(response.json()), response.status_code
+    #except requests.exceptions.RequestException as e:
+    #    return jsonify({'error': f"Error al comunicarse con citas-service: {str(e)}"}), 503
 
 @app.route('/orquestador/citas/doctor/<string:iddoctor>', methods=['GET'])
 def obtener_citas_doctor_orquestada(iddoctor):
@@ -163,11 +165,11 @@ def obtener_citas_doctor_orquestada(iddoctor):
           400:
             description: No se encontraron citas para el doctor
         """
-    try:
-        response = requests.get(f"{CITAS_SERVICE_URL}/getcitas/doctor/{iddoctor}", timeout=5)
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': f"Error al comunicarse con citas-service: {str(e)}"}), 503
+    #try:
+    response = requests.get(f"{CITAS_SERVICE_URL}/getcitas/doctor/{iddoctor}", timeout=5)
+    return jsonify(response.json()), response.status_code
+    #except requests.exceptions.RequestException as e:
+    #    return jsonify({'error': f"Error al comunicarse con citas-service: {str(e)}"}), 503
 
 @app.route('/orquestador/citas/hoy', methods=['GET'])
 def obtener_citas_hoy_orquestada():
@@ -182,11 +184,11 @@ def obtener_citas_hoy_orquestada():
           400:
             description: No hay citas programadas para hoy
         """
-    try:
-        response = requests.get(f"{CITAS_SERVICE_URL}/getcita/hoy", timeout=5)
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': f"Error al comunicarse con citas-service: {str(e)}"}), 503
+    #try:
+    response = requests.get(f"{CITAS_SERVICE_URL}/getcita/hoy", timeout=5)
+    return jsonify(response.json()), response.status_code
+    #except requests.exceptions.RequestException as e:
+    #    return jsonify({'error': f"Error al comunicarse con citas-service: {str(e)}"}), 503
 
 
 @app.route('/orquestador/generarreceta', methods=['POST'])
@@ -243,41 +245,41 @@ def generar_receta_orquestada():
     iddoctor_dni = data['iddoctor']       # En tu modelo, iddoctor = dni del médico
     idcita = data['idcita']
 
-    try:
+    #try:
         # 👉 Verificar paciente por DNI
-        paciente_response = requests.get(
-            f"{PERSONA_SERVICE_URL}/paciente/dni/{idpaciente_dni}",
-            timeout=5
-        )
-        if paciente_response.status_code != 200:
-            return jsonify({'error': f'Paciente con DNI {idpaciente_dni} no existe'}), 400
+    paciente_response = requests.get(
+        f"{PERSONA_SERVICE_URL}/paciente/dni/{idpaciente_dni}",
+        timeout=5
+    )
+    if paciente_response.status_code != 200:
+        return jsonify({'error': f'Paciente con DNI {idpaciente_dni} no existe'}), 400
 
         # 👉 Verificar doctor por DNI
-        doctor_response = requests.get(
-            f"{PERSONA_SERVICE_URL}/medico/dni/{iddoctor_dni}",
-            timeout=5
-        )
-        if doctor_response.status_code != 200:
-            return jsonify({'error': f'Doctor con DNI {iddoctor_dni} no existe'}), 400
+    doctor_response = requests.get(
+        f"{PERSONA_SERVICE_URL}/medico/dni/{iddoctor_dni}",
+        timeout=5
+    )
+    if doctor_response.status_code != 200:
+        return jsonify({'error': f'Doctor con DNI {iddoctor_dni} no existe'}), 400
 
-        # 👉 Verificar existencia de cita
-        cita_response = requests.get(
-            f"{CITAS_SERVICE_URL}/getcita/{idcita}",
-            timeout=5
-        )
-        if cita_response.status_code != 200:
-            return jsonify({'error': f'Cita con ID {idcita} no existe'}), 400
+    # 👉 Verificar existencia de cita
+    cita_response = requests.get(
+        f"{CITAS_SERVICE_URL}/getcita/{idcita}",
+        timeout=5
+    )
+    if cita_response.status_code != 200:
+        return jsonify({'error': f'Cita con ID {idcita} no existe'}), 400
 
-        # 👉 Si todo OK, reenvía la receta a receta-cita-service
-        receta_response = requests.post(
-            f"{CITAS_SERVICE_URL}/generarreceta",
-            json=data,
-            timeout=5
-        )
-        return jsonify(receta_response.json()), receta_response.status_code
+    # 👉 Si todo OK, reenvía la receta a receta-cita-service
+    receta_response = requests.post(
+        f"{CITAS_SERVICE_URL}/generarreceta",
+        json=data,
+        timeout=5
+    )
+    return jsonify(receta_response.json()), receta_response.status_code
 
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': f"Error al comunicarse con un microservicio: {str(e)}"}), 503
+    #except requests.exceptions.RequestException as e:
+    #    return jsonify({'error': f"Error al comunicarse con un microservicio: {str(e)}"}), 503
 
 @app.route('/orquestador/recetas/paciente/<string:idpaciente>', methods=['GET'])
 def obtener_recetas_paciente_orquestada(idpaciente):
@@ -297,11 +299,10 @@ def obtener_recetas_paciente_orquestada(idpaciente):
           400:
             description: No se encontraron recetas para este paciente
         """
-    try:
-        response = requests.get(f"{CITAS_SERVICE_URL}/getrecetas/paciente/{idpaciente}", timeout=5)
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': f"Error al comunicarse con receta-cita-service: {str(e)}"}), 503
+
+    response = requests.get(f"{CITAS_SERVICE_URL}/getrecetas/paciente/{idpaciente}", timeout=5)
+    return jsonify(response.json()), response.status_code
+
 
 @app.route('/orquestador/recetas/cita/<string:idcita>', methods=['GET'])
 def obtener_receta_cita_orquestada(idcita):
@@ -321,11 +322,10 @@ def obtener_receta_cita_orquestada(idcita):
           400:
             description: No se encontró receta para esta cita
         """
-    try:
-        response = requests.get(f"{CITAS_SERVICE_URL}/getreceta/cita/{idcita}", timeout=5)
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': f"Error al comunicarse con receta-cita-service: {str(e)}"}), 503
+
+    response = requests.get(f"{CITAS_SERVICE_URL}/getreceta/cita/{idcita}", timeout=5)
+    return jsonify(response.json()), response.status_code
+
 
 # ENDPOINTS MICROSERVICIO EXAMEN_SERVICE
 
@@ -415,12 +415,8 @@ def obtener_examenes_paciente(pacienteId):
           503:
             description: Error de comunicación con historial-service
         """
-    try:
-        response = requests.get(f"{EXAMEN_SERVICE_URL}/{pacienteId}", timeout=5)
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': f"Error al comunicarse con historial-service: {str(e)}"}), 503
-
+    response = requests.get(f"{EXAMEN_SERVICE_URL}/{pacienteId}", timeout=5)
+    return jsonify(response.json()), response.status_code
 
 @app.route('/orquestador/examenes', methods=['POST'])
 def crear_examen_orquestado():
@@ -475,43 +471,37 @@ def crear_examen_orquestado():
     paciente_dni = data['pacienteId']   # Tu modelo usa pacienteId como DNI
     medico_dni = data['medicoId']       # Igual para medicoId como DNI
 
-    try:
-        # 👉 Verificar paciente en persona-service
-        paciente_response = requests.get(
-            f"{PERSONA_SERVICE_URL}/paciente/dni/{paciente_dni}",
-            timeout=5
-        )
-        if paciente_response.status_code != 200:
-            return jsonify({'error': f'Paciente con DNI {paciente_dni} no existe'}), 400
 
-        # 👉 Verificar médico en persona-service
-        doctor_response = requests.get(
-            f"{PERSONA_SERVICE_URL}/medico/dni/{medico_dni}",
-            timeout=5
-        )
-        if doctor_response.status_code != 200:
-            return jsonify({'error': f'Médico con DNI {medico_dni} no existe'}), 400
+    # 👉 Verificar paciente en persona-service
+    paciente_response = requests.get(
+        f"{PERSONA_SERVICE_URL}/paciente/dni/{paciente_dni}",
+        timeout=5
+    )
+    if paciente_response.status_code != 200:
+        return jsonify({'error': f'Paciente con DNI {paciente_dni} no existe'}), 400
 
-        # 👉 Si todo OK, llamar a historial-service para crear examen
-        examen_response = requests.post(
-            f"{EXAMEN_SERVICE_URL}",
-            json=data,
-            timeout=5
-        )
-        return jsonify(examen_response.json()), examen_response.status_code
+    # 👉 Verificar médico en persona-service
+    doctor_response = requests.get(
+        f"{PERSONA_SERVICE_URL}/medico/dni/{medico_dni}",
+        timeout=5
+    )
+    if doctor_response.status_code != 200:
+        return jsonify({'error': f'Médico con DNI {medico_dni} no existe'}), 400
 
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': f"Error al comunicarse con un microservicio: {str(e)}"}), 503
+    # 👉 Si todo OK, llamar a historial-service para crear examen
+    examen_response = requests.post(
+        f"{EXAMEN_SERVICE_URL}",
+        json=data,
+        timeout=5
+    )
+    return jsonify(examen_response.json()), examen_response.status_code
 
 # MICROSERVICIO PERSONA
 # Obtener paciente por ID
 @app.route('/orquestador/personas/paciente/<int:id>', methods=['GET'])
 def obtener_paciente(id):
-    try:
-        response = requests.get(f"{PERSONA_SERVICE_URL}/paciente/{id}", timeout=5)
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': str(e)}), 503
+    response = requests.get(f"{PERSONA_SERVICE_URL}/paciente/{id}", timeout=5)
+    return jsonify(response.json()), response.status_code
 
 # Obtener médico por ID
 @app.route('/orquestador/personas/medico/<int:id>', methods=['GET'])
@@ -548,11 +538,8 @@ def obtener_medico(id):
           503:
             description: Error al comunicarse con persona-service
         """
-    try:
-        response = requests.get(f"{PERSONA_SERVICE_URL}/medico/{id}", timeout=5)
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': str(e)}), 503
+    response = requests.get(f"{PERSONA_SERVICE_URL}/medico/{id}", timeout=5)
+    return jsonify(response.json()), response.status_code
 
 # Obtener paciente por DNI
 @app.route('/orquestador/personas/paciente/dni/<string:dni>', methods=['GET'])
@@ -594,11 +581,8 @@ def obtener_paciente_dni(dni):
           503:
             description: Error al comunicarse con persona-service
         """
-    try:
-        response = requests.get(f"{PERSONA_SERVICE_URL}/paciente/dni/{dni}", timeout=5)
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': str(e)}), 503
+    response = requests.get(f"{PERSONA_SERVICE_URL}/paciente/dni/{dni}", timeout=5)
+    return jsonify(response.json()), response.status_code
 
 # Obtener médico por DNI
 @app.route('/orquestador/personas/medico/dni/<string:dni>', methods=['GET'])
@@ -640,11 +624,8 @@ def obtener_medico_dni(dni):
           503:
             description: Error al comunicarse con persona-service
         """
-    try:
-        response = requests.get(f"{PERSONA_SERVICE_URL}/medico/dni/{dni}", timeout=5)
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': str(e)}), 503
+    response = requests.get(f"{PERSONA_SERVICE_URL}/medico/dni/{dni}", timeout=5)
+    return jsonify(response.json()), response.status_code
 
 # Buscar médicos por especialidad y día
 @app.route('/orquestador/personas/medicos', methods=['GET'])
@@ -686,15 +667,13 @@ def buscar_medicos():
           503:
             description: Error al comunicarse con persona-service
         """
-    try:
-        params = {
-            'especialidad': request.args.get('especialidad'),
-            'dia': request.args.get('dia')
-        }
-        response = requests.get(f"{PERSONA_SERVICE_URL}/medicos", params=params, timeout=5)
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': str(e)}), 503
+    params = {
+        'especialidad': request.args.get('especialidad'),
+        'dia': request.args.get('dia')
+    }
+    response = requests.get(f"{PERSONA_SERVICE_URL}/medicos", params=params, timeout=5)
+    return jsonify(response.json()), response.status_code
+
 
 # Crear paciente
 @app.route('/orquestador/personas/paciente', methods=['POST'])
@@ -862,46 +841,32 @@ def crear_medico():
           503:
             description: Error al comunicarse con persona-service
         """
-    try:
-        response = requests.post(f"{PERSONA_SERVICE_URL}/medico", json=request.get_json(), timeout=5)
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': str(e)}), 503
+    response = requests.post(f"{PERSONA_SERVICE_URL}/medico", json=request.get_json(), timeout=5)
+    return jsonify(response.json()), response.status_code
 
 # Actualizar paciente
 @app.route('/orquestador/personas/paciente/<int:id>', methods=['PUT'])
 def actualizar_paciente(id):
-    try:
-        response = requests.put(f"{PERSONA_SERVICE_URL}/paciente/{id}", json=request.get_json(), timeout=5)
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': str(e)}), 503
+    response = requests.put(f"{PERSONA_SERVICE_URL}/paciente/{id}", json=request.get_json(), timeout=5)
+    return jsonify(response.json()), response.status_code
 
 # Actualizar médico
 @app.route('/orquestador/personas/medico/<int:id>', methods=['PUT'])
 def actualizar_medico(id):
-    try:
         response = requests.put(f"{PERSONA_SERVICE_URL}/medico/{id}", json=request.get_json(), timeout=5)
         return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': str(e)}), 503
+
 
 # Eliminar paciente
 @app.route('/orquestador/personas/paciente/<int:id>', methods=['DELETE'])
 def eliminar_paciente(id):
-    try:
-        response = requests.delete(f"{PERSONA_SERVICE_URL}/paciente/{id}", timeout=5)
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': str(e)}), 503
+    response = requests.delete(f"{PERSONA_SERVICE_URL}/paciente/{id}", timeout=5)
+    return jsonify(response.json()), response.status_code
 
 # Eliminar médico
 @app.route('/orquestador/personas/medico/<int:id>', methods=['DELETE'])
 def eliminar_medico(id):
-    try:
-        response = requests.delete(f"{PERSONA_SERVICE_URL}/medico/{id}", timeout=5)
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': str(e)}), 503
+    response = requests.delete(f"{PERSONA_SERVICE_URL}/medico/{id}", timeout=5)
+    return jsonify(response.json()), response.status_code
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8002)
